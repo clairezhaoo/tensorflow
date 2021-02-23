@@ -22,7 +22,7 @@ print("[TIMER] Process Time:", now, file = fout, flush = True)
 
 # File location to save to or load from
 MODEL_SAVE_PATH = './FashionMNIST_net.pth'
-TRAIN_EPOCHS = 1
+TRAIN_EPOCHS = 20
 SAVE_EPOCHS = False
 SAVE_LAST = False
 BATCH_SIZE_TRAIN = 4
