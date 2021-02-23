@@ -22,7 +22,7 @@ print("[TIMER] Process Time:", now, file = fout, flush = True)
 
 # File location to save to or load from
 MODEL_SAVE_PATH = './FashionMNIST_net.pth'
-TRAIN_EPOCHS = 20
+TRAIN_EPOCHS = 1
 SAVE_EPOCHS = False
 SAVE_LAST = False
 BATCH_SIZE_TRAIN = 4
@@ -51,7 +51,7 @@ class Net():
         self.model.add(layers.MaxPooling2D(pool_size = 2))
 
         self.model.add(layers.Flatten())
-        # Now, we flatten to one dimension, so we go to just length 400.
+        # Now, we flatten to one dimension, so we go to just 192.
 
         self.model.add(layers.Dense(120, activation = 'relu'))
 
@@ -73,14 +73,25 @@ class Net():
         print(summaryStr)
         print(summaryStr, file=fout)
 
-print("[INFO] Loading Traning and Test Datasets.")
-print("[INFO] Loading Traning and Test Datasets.", file=fout)
+print("[INFO] Loading Training and Test Datasets.")
+print("[INFO] Loading Training and Test Datasets.", file=fout)
 
-# Get the FashionMNIST Dataset
+# Load the FashionMNIST Dataset
 ((trainX, trainY), (testX, testY)) = datasets.fashion_mnist.load_data()
+# Set input shape
+sample_shape = trainX[0].shape
+img_width, img_height = sample_shape[0], sample_shape[1]
+input_shape = (img_width, img_height, 1)
+
+# Reshape data
+trainX = trainX.reshape(len(trainX), input_shape[0], input_shape[1], input_shape[2])
+testX = testX.reshape(len(testX), input_shape[0], input_shape[1], input_shape[2])
+
+
 # Convert from integers 0-255 to decimals 0-1.
 trainX = trainX.astype("float") / 255.0
 testX = testX.astype("float") / 255.0
+
 
 # Convert labels from integers to vectors.
 lb = preprocessing.LabelBinarizer()
@@ -89,11 +100,15 @@ testY = lb.fit_transform(testY)
 
 classes = ["T-shirt/top", "Trouser", "Pullover", "Dress", "Coat", "Sandal", "Shirt", "Sneaker", "Bag", "Ankle boot"]
 
-net = Net((28, 28, 1))
+net = Net(input_shape)
 
-print(net)   # prints to both console and file
+
+print(net, file=fout)   # prints to both console and file
+
 
 results = net.model.fit(trainX, trainY, validation_data=(testX, testY), shuffle = True, epochs = TRAIN_EPOCHS, batch_size = BATCH_SIZE_TRAIN, validation_batch_size = BATCH_SIZE_TEST, verbose = 1)
+
+
 
 plt.figure()
 plt.plot(np.arange(0, 20), results.history['loss'])
@@ -101,3 +116,11 @@ plt.plot(np.arange(0, 20), results.history['val_loss'])
 plt.plot(np.arange(0, 20), results.history['accuracy'])
 plt.plot(np.arange(0, 20), results.history['val_accuracy'])
 plt.show()
+
+"""
+tf.keras.models.save_model(
+    net, "/model", overwrite=True, include_optimizer=True, save_format=None,
+    signatures=None, options=None, save_traces=True
+)
+loaded_model = tf.keras.models.load_model('/model')
+"""
