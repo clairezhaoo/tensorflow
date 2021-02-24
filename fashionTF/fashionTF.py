@@ -61,7 +61,7 @@ class Net():
 
         self.model.add(layers.Dense(10))
         # Now we're at length 10, which is our number of classes.
-        self.optimizer = optimizers.SGD(lr=0.001, momentum=0.9)
+        self.optimizer = optimizers.SGD(lr=0.01, momentum=0.99)  # was previously .001, .9s; .005, .98
         self.loss = losses.MeanSquaredError()
         self.model.compile(loss=self.loss, optimizer=self.optimizer, metrics=['accuracy'])
 
@@ -117,6 +117,8 @@ plt.plot(np.arange(0, 20), results.history['accuracy'])
 plt.plot(np.arange(0, 20), results.history['val_accuracy'])
 plt.show()
 
+net.save('/model')
+loaded_net = tf.keras.models.load_model('/model')
 """
 tf.keras.models.save_model(
     net, "/model", overwrite=True, include_optimizer=True, save_format=None,
